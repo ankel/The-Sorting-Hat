@@ -50,8 +50,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="TestQuickSort.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestParQuickSort.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TheSortingHat\TheSortingHat.csproj">

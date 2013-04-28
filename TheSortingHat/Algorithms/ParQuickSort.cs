@@ -2,25 +2,45 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Diagnostics;
 
 namespace TheSortingHat.Algorithms {
-    public class QuickSort<T> : ISortable<T> where T : IComparable<T> {
-        
-        /// <summary>
-        /// Quick sort.
-        /// </summary>
-        /// <remarks>Algorithm from http://en.wikipedia.org/wiki/Quicksort#In-place_version </remarks>
-        /// <param name="arr">array contains elements to be sorted.</param>
+    public class ParQuickSort<T> : ISortable<T> where T : IComparable<T> {
+        #region ISortable<T> Members
+
         public void Sort ( T[] arr ) {
-            qSort (arr, 0, arr.Length - 1);
+            qSort (new ArraySection(arr, 0, arr.Length - 1));
         }
 
-        private void qSort ( T[] arr, int L, int R ) {
+        #endregion
+
+        struct ArraySection {
+            public T[] arr;
+            public int L;
+            public int R;
+
+            public ArraySection ( T[] arr, int L, int R ) {
+                this.arr = arr;
+                this.L = L;
+                this.R = R;
+            }
+        }
+
+        private void qSort ( object obj ) {
+            Trace.Assert(obj is ArraySection);
+            ArraySection asec = (ArraySection) obj;
+            T[] arr = asec.arr;
+            int L = asec.L;
+            int R = asec.R;
             if ( L < R ) {
                 int piv = L + ( R - L ) / 2;
                 piv = Partition (arr, L, R, piv);
-                qSort (arr, L, piv - 1);
-                qSort (arr, piv + 1, R);
+                Thread t = new Thread (qSort);
+                t.Start( new ArraySection (arr, L, piv - 1));
+                qSort (new ArraySection (arr, piv + 1, R));
+                t.Join ();
             }
         }
 

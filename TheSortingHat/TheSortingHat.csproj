@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\ParQuickSort.cs" />
     <Compile Include="ISortable.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>

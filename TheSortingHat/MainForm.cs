@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 
+using TheSortingHat.Algorithms;
+
 namespace TheSortingHat {
     public partial class MainForm : Form {
 
