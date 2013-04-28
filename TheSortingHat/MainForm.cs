@@ -12,34 +12,19 @@ using System.Diagnostics;
 namespace TheSortingHat {
     public partial class MainForm : Form {
 
-        const int size = 52;
+        const int size = 5;
 
-        public Double[] ToBeSorted{
+        ISortable<Double> sortingAlgorithm;
+
+        public Double[] ToBeSorted {
             get;
             private set;
         }
 
-        /// <summary>
-        /// Create an array contains random numbers between 1 and size
-        /// </summary>
-        /// <remarks>This function uses Fisher–Yates shuffle, the algorithm can be found at http://en.wikipedia.org/wiki/Fisher-Yates_shuffle </remarks>
-        /// <param name="size">size of the output array</param>
-        /// <returns>array contains random numbers</returns>
-        public static Double[] Randomize ( int size ) {
-            Double[] r = new Double[size];
-            Random rand = new Random();
-
-            for ( int i = 0; i < size; ++i ) {
-                r[i] = i + 1;
-            }
-
-            Shuffle (r);
-
-            return r;
-        }
-
         public MainForm () {
             InitializeComponent ();
+            ToBeSorted = GenerateRandomInput ();
+            qsortRadio.Checked = true;
         }
 
         private void randomizeBttn_Click ( object sender, EventArgs e ) {
@@ -47,38 +32,18 @@ namespace TheSortingHat {
                 ToBeSorted = GenerateRandomInput ();
             } else {
                 bool goodInput = true;
-                ToBeSorted = Shuffle(ParseInputTextForCSV(ref goodInput));
+                ToBeSorted = RandomAux.Shuffle (ParseInputTextForCSV (ref goodInput));
                 Debug.Assert (goodInput);   // can't be false - textbox passed Validating event
                 RewriteInputTxt (ToBeSorted.Length, ToBeSorted);
             }
         }
 
-        /// <summary>
-        /// Shuffle elements inside an array
-        /// </summary>
-        /// <remarks>This function uses Fisher–Yates shuffle, the algorithm can be found at http://en.wikipedia.org/wiki/Fisher-Yates_shuffle </remarks>
-        /// <param name="list">List contains the array</param>
-        /// <returns></returns>
-        public static double[] Shuffle ( IList<Double> list ) {
-            Double[] a = new Double[list.Count];
-            a[0] = list[0];
-            Random rand = new Random();
-
-            for ( int i = 1; i < list.Count; ++i ) {
-                int j = rand.Next (i + 1);
-                a[i] = a[j];
-                a[j] = list[i];
-            }
-
-            return a;
-        }
-
         private void inputTxtb_Validating ( object sender, CancelEventArgs e ) {
             foreach ( var c in inputTxtb.Text ) {
-                if (!(Char.IsNumber(c) || c ==',' || c == ' ' || c == '.')){
-                    MessageBox.Show("Input can only accept digit, comma, or dot.\nRandom numbers will be generated instead","Input error");
+                if ( !( Char.IsNumber (c) || c == ',' || c == ' ' || c == '.' ) ) {
+                    MessageBox.Show ("Input can only accept digit, comma, or dot.\nRandom numbers will be generated instead", "Input error");
 
-                    GenerateRandomInput();
+                    GenerateRandomInput ();
 
                     break;
                 }
@@ -87,11 +52,11 @@ namespace TheSortingHat {
             bool goodInput = true;
             List<Double> d = ParseInputTextForCSV (ref goodInput);
 
-            if (goodInput) {
-                ToBeSorted = d.ToArray();
+            if ( goodInput ) {
+                ToBeSorted = d.ToArray ();
             } else {
-                MessageBox.Show("Input can only accept digit, comma, or dot.\nRandom numbers will be generated instead","Input error");
-                ToBeSorted = GenerateRandomInput();
+                MessageBox.Show ("Input can only accept digit, comma, or dot.\nRandom numbers will be generated instead", "Input error");
+                ToBeSorted = GenerateRandomInput ();
             }
 
         }
@@ -111,7 +76,7 @@ namespace TheSortingHat {
         }
 
         private Double[] GenerateRandomInput () {
-            Double[] a = Randomize (size);
+            Double[] a = RandomAux.Randomize (size);
 
             RewriteInputTxt (size, a);
 
@@ -124,6 +89,23 @@ namespace TheSortingHat {
             for ( int i = 1; i < size; ++i ) {
                 inputTxtb.Text += String.Format (", {0}", a[i]);
             }
+        }
+
+        private void qsortRadio_CheckedChanged ( object sender, EventArgs e ) {
+            if ( qsortRadio.Checked ) {
+                sortingAlgorithm = new QuickSort<Double> ();
+            }
+        }
+
+        private void sortBttn_Click ( object sender, EventArgs e ) {
+
+            bool goodInput = true;
+            var l = ParseInputTextForCSV (ref goodInput);
+            Debug.Assert (goodInput);
+            ToBeSorted = l.ToArray ();
+
+            sortingAlgorithm.Sort (ToBeSorted);
+            RewriteInputTxt (ToBeSorted.Length, ToBeSorted);
         }
 
     }
